@@ -85,12 +85,12 @@ if [[ "$MODE" == "keep" ]]; then
   
   if [[ "$SKIP_RENAME" == false ]]; then
     PARENT_DIR=$(dirname "$(pwd)")
-    NEW_DIR="$PARENT_DIR/$REPO_NAME"
-    if [[ "$(pwd)" != "$NEW_DIR" ]]; then
-      echo "Renaming directory from $(basename "$(pwd)") to $REPO_NAME..."
+    CURRENT_DIR=$(basename "$(pwd)")
+    if [[ "$CURRENT_DIR" != "$REPO_NAME" ]]; then
+      echo "Renaming directory from $CURRENT_DIR to $REPO_NAME..."
       cd "$PARENT_DIR"
-      mv "$(basename "$(pwd -P)/..")"/* "$REPO_NAME" 2>/dev/null || mv "$(basename "$(pwd)")" "$REPO_NAME"
-      echo "Renamed successfully. New path: $NEW_DIR"
+      mv "$CURRENT_DIR" "$REPO_NAME"
+      echo "Renamed successfully. New path: $PARENT_DIR/$REPO_NAME"
     fi
   fi
   exit 0
