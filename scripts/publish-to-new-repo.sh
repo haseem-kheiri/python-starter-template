@@ -140,6 +140,7 @@ if [[ "$MODE" == "keep" ]]; then
 fi
 
 # Fresh-history mode
+echo "Published with fresh history to: $NEW_REPO_URL"
 cd "$TEMPLATE_DIR"
 
 if [[ ! -d .git ]]; then
@@ -149,7 +150,8 @@ fi
 
 rm -rf .git
 git init
-git add .
+# Add everything except README.md and scripts/publish-to-new-repo.sh
+find . \( -name README.md -o -path ./scripts/publish-to-new-repo.sh \) -prune -o -type f -print | git add -f --pathspec-from-file=-
 git commit -m "Initial commit"
 git remote add origin "$NEW_REPO_URL"
 git branch -M main
