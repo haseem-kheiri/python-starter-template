@@ -69,6 +69,24 @@ extract_repo_name() {
 
 REPO_NAME=$(extract_repo_name "$NEW_REPO_URL")
 
+# Rename a directory, with graceful fallback instructions on failure (e.g. Windows file locks)
+rename_directory() {
+  local old_name="$1"
+  local new_name="$2"
+  local parent="$3"
+  echo "Renaming directory from $old_name to $new_name..."
+  if mv "$old_name" "$new_name" 2>/dev/null; then
+    echo "Renamed successfully. New path: $parent/$new_name"
+  else
+    echo ""
+    echo "WARNING: Could not rename directory automatically (Windows may still hold file handles)."
+    echo "Git publish succeeded. To complete setup, run this command once your terminal is clear:"
+    echo ""
+    echo "  mv \"$parent/$old_name\" \"$parent/$new_name\""
+    echo ""
+  fi
+}
+
 # Determine template directory (parent of scripts directory)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATE_DIR="$(dirname "$SCRIPT_DIR")"
@@ -116,9 +134,7 @@ if [[ "$MODE" == "keep" ]]; then
   
   # Now rename the directory if needed
   if [[ "$SKIP_RENAME" == false ]] && [[ "$ORIGINAL_DIR_NAME" != "$REPO_NAME" ]]; then
-    echo "Renaming directory from $ORIGINAL_DIR_NAME to $REPO_NAME..."
-    mv "$ORIGINAL_DIR_NAME" "$REPO_NAME"
-    echo "Renamed successfully. New path: $PARENT_DIR/$REPO_NAME"
+    rename_directory "$ORIGINAL_DIR_NAME" "$REPO_NAME" "$PARENT_DIR"
   fi
   exit 0
 fi
@@ -146,7 +162,5 @@ cd "$PARENT_DIR"
 
 # Now rename the directory if needed (we're now in parent directory, so rename is safe)
 if [[ "$SKIP_RENAME" == false ]] && [[ "$ORIGINAL_DIR_NAME" != "$REPO_NAME" ]]; then
-  echo "Renaming directory from $ORIGINAL_DIR_NAME to $REPO_NAME..."
-  mv "$ORIGINAL_DIR_NAME" "$REPO_NAME"
-  echo "Renamed successfully. New path: $PARENT_DIR/$REPO_NAME"
+  rename_directory "$ORIGINAL_DIR_NAME" "$REPO_NAME" "$PARENT_DIR"
 fi
