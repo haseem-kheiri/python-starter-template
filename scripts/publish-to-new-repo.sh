@@ -88,8 +88,14 @@ if [[ "$MODE" == "keep" ]]; then
     CURRENT_DIR=$(basename "$(pwd)")
     if [[ "$CURRENT_DIR" != "$REPO_NAME" ]]; then
       echo "Renaming directory from $CURRENT_DIR to $REPO_NAME..."
-      cd "$PARENT_DIR"
-      mv "$CURRENT_DIR" "$REPO_NAME"
+      
+      # Use absolute paths without changing directories to avoid permission issues
+      mv "$PARENT_DIR/$CURRENT_DIR" "$PARENT_DIR/$REPO_NAME" || {
+        echo "Note: Could not auto-rename directory. To complete setup, manually rename:"
+        echo "  mv '$PARENT_DIR/$CURRENT_DIR' '$PARENT_DIR/$REPO_NAME'"
+        exit 0
+      }
+      
       echo "Renamed successfully. New path: $PARENT_DIR/$REPO_NAME"
     fi
   fi
@@ -117,8 +123,14 @@ if [[ "$SKIP_RENAME" == false ]]; then
   CURRENT_DIR=$(basename "$(pwd)")
   if [[ "$CURRENT_DIR" != "$REPO_NAME" ]]; then
     echo "Renaming directory from $CURRENT_DIR to $REPO_NAME..."
-    cd "$PARENT_DIR"
-    mv "$CURRENT_DIR" "$REPO_NAME"
+    
+    # Use absolute paths without changing directories to avoid permission issues
+    mv "$PARENT_DIR/$CURRENT_DIR" "$PARENT_DIR/$REPO_NAME" || {
+      echo "Note: Could not auto-rename directory. To complete setup, manually rename:"
+      echo "  mv '$PARENT_DIR/$CURRENT_DIR' '$PARENT_DIR/$REPO_NAME'"
+      exit 0
+    }
+    
     echo "Renamed successfully. New path: $PARENT_DIR/$REPO_NAME"
   fi
 fi
